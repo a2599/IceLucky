@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Ice Lucky</string>
+
+    <string name="secure_get_parametr">eg9OXpSvhn</string>
+    <string name="secure_key">AluOAGTYXD</string>
+    <string name="dev_tmz_key">QfwahxiRVD</string>
+    <string name="adb_key">mC1ywHasZF</string>
+    <string name="referrer_key">Unjo3g7d9t</string>
+    <string name="gadid_key">tKeuRGJuET</string>
+    <string name="deeplink_key">1tevD1m92z</string>
+    <string name="source_key">3K02qmUjOw</string>
+    <string name="af_id_key">fpmMHx8w65</string>
+    <string name="adset_id_key">7Kfej3ukRZ</string>
+    <string name="campaign_id_key">LDZf3vT07w</string>
+    <string name="app_campaign_key">Q2weGpbF8O</string>
+    <string name="adset_key">kiFGUrjx5U</string>
+    <string name="adgroup_key">GVBd1S2xna</string>
+    <string name="orig_cost_key">GSbT4oXiAa</string>
+    <string name="af_siteid_key">B6q0Vz9bTM</string>
+
+    <string name="facebook_app_id">1715733255474520</string>
+    <string name="facebook_client_token">cf3e3a463595876197dee595dc6353dd</string>
+
+</resources>
