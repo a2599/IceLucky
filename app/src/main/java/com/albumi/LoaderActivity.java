@@ -158,8 +158,8 @@ public class LoaderActivity extends AppCompatActivity {
                 new AppLinkData.CompletionHandler() {
                     @Override
                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-                        isHasDeeplink = true;
                         if (appLinkData != null) {
+                            isHasDeeplink = true;
                             String deeplinkTag = appLinkData.toString().replace("myapp://", "");
                             deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
                             initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
@@ -179,8 +179,9 @@ public class LoaderActivity extends AppCompatActivity {
                 new AppLinkData.CompletionHandler() {
                     @Override
                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-                        isHasDeeplink = true;
+
                         if (appLinkData != null) {
+                            isHasDeeplink = true;
                             String deeplinkTag = appLinkData.toString().replace("myapp://", "");
                             deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
                             initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
@@ -209,7 +210,7 @@ public class LoaderActivity extends AppCompatActivity {
                     Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
                 }
                 isHasCampaign = true;
-                //System.out.println("############################################");
+                //System.out.println("############################################ ############################################ ############################################ 3");
                 //for (String attrName : conversionDataMap.keySet())
                 //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
                 String status = Objects.requireNonNull(conversionData.get("af_status")).toString();
