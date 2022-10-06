@@ -15,6 +15,11 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
 
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+
     <application
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -58,23 +63,30 @@
             android:authorities="com.facebook.app.FacebookContentProvider1715733255474520"
             android:exported="true" />
 
+        <!--<receiver
+            android:name="com.appsflyer.SingleInstallBroadcastReceiver"
+            android:exported="true">
+            <action android:name="com.android.vending.INSTALL_REFERRER" />
+        </receiver>-->
 
         <activity
             android:name=".WebViewActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="false"
-            android:screenOrientation="sensorPortrait"
             android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".LoaderActivity"
             android:exported="true">
 
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
 
                 <data android:scheme="myapp" />
             </intent-filter>
@@ -82,6 +94,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
 
             <intent-filter>
 

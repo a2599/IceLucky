@@ -5,6 +5,7 @@ import android.icu.util.TimeZone;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Configuration;
@@ -12,6 +13,8 @@ import androidx.work.WorkManager;
 
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
+import com.appsflyer.AppsFlyerLibCore;
+
 import com.facebook.FacebookSdk;
 import com.facebook.applinks.AppLinkData;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -33,8 +36,8 @@ public class LoaderActivity extends AppCompatActivity {
     // Аппс флаер
     // adb shell am start -W -a android.intent.action.VIEW "https://app.appsflyer.com/com.albumi?pid=devtest&advertising_id=43eba73f-2fd7-41c4-8948-c2fa730cc6f1"
 
-
-
+    private boolean isHasDeeplink = false;
+    private boolean isHasCampaign = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +46,10 @@ public class LoaderActivity extends AppCompatActivity {
 
         //runWebView();
         initFacebook();
+
+        initAppsFlyer();
+
+        runWeb(20000);
     }
 
 
@@ -53,6 +60,25 @@ public class LoaderActivity extends AppCompatActivity {
         setIntent(intent);
     }
     */
+    //==============================================================================================
+    private void runWeb(int delay) {
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                if (!isHasCampaign && !isHasDeeplink) {
+                    Thread thread = new Thread(new Runnable() {
+                        public void run() {
+                            initOneSignal(linkBuilder(), "organic");
+                        }
+                    });
+                    thread.start();
+                } else
+                    runWeb(5000);
+            }
+        }, delay);
+
+    }
     //==============================================================================================
     private void runWebView() {
         Thread thread = new Thread(new Runnable() {
@@ -70,7 +96,6 @@ public class LoaderActivity extends AppCompatActivity {
     }
 
     //==============================================================================================
-
 
 
     //==============================================================================================
@@ -133,11 +158,13 @@ public class LoaderActivity extends AppCompatActivity {
                 new AppLinkData.CompletionHandler() {
                     @Override
                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+                        isHasDeeplink = true;
                         if (appLinkData != null) {
                             String deeplinkTag = appLinkData.toString().replace("myapp://", "");
                             deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
                             initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
-                        } else{
+                        } else {
+                            isHasDeeplink = false;
                             initAppsFlyer();
                         }
 
@@ -146,59 +173,84 @@ public class LoaderActivity extends AppCompatActivity {
         );
 
 
-        /*
         FacebookSdk.setAutoInitEnabled(true);
         FacebookSdk.fullyInitialize();
         AppLinkData.fetchDeferredAppLinkData(this,
                 new AppLinkData.CompletionHandler() {
                     @Override
                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-                        // Process app link data
-                        System.out.println("############################################");
+                        isHasDeeplink = true;
+                        if (appLinkData != null) {
+                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
+                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
+                        } else {
+                            isHasDeeplink = false;
+                            initAppsFlyer();
+                        }
                     }
                 }
         );
-         */
 
     }
+
     //==============================================================================================
-    private void initAppsFlyer(){
-        AppsFlyerConversionListener conversionListener = new AppsFlyerConversionListener() {
+    private void initAppsFlyer() {
+
+        AppsFlyerLib.getInstance().sendDeepLinkData(this);
+
+
+        AppsFlyerLib.getInstance().registerConversionListener(this, new AppsFlyerConversionListener() {
+
+            /* Returns the attribution data. Note - the same conversion data is returned every time per install */
             @Override
-            public void onConversionDataSuccess(Map<String, Object> conversionDataMap) {
+            public void onConversionDataSuccess(Map<String, Object> conversionData) {
+                for (String attrName : conversionData.keySet()) {
+                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                }
+                isHasCampaign = true;
                 //System.out.println("############################################");
                 //for (String attrName : conversionDataMap.keySet())
-                    //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
-                String status = Objects.requireNonNull(conversionDataMap.get("af_status")).toString();
-                if (status.equals("Organic")) {
-                    initOneSignal(linkBuilder(), "organic");
-                } else {
-                    initOneSignal(linkBuilder(conversionDataMap), Objects.requireNonNull(conversionDataMap.get("campain")).toString().substring(Objects.requireNonNull(conversionDataMap.get("campain")).toString().indexOf("_")));
+                //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
+                String status = Objects.requireNonNull(conversionData.get("af_status")).toString();
+
+                if (!isHasDeeplink) {
+                    if (status.equals("Organic"))
+                        initOneSignal(linkBuilder(), "organic");
+                    else
+                        initOneSignal(linkBuilder(conversionData), Objects.requireNonNull(conversionData.get("campaign")).toString().substring(Objects.requireNonNull(conversionData.get("campaign")).toString().indexOf("_")));
                 }
             }
 
             @Override
             public void onConversionDataFail(String errorMessage) {
-                //System.out.println("### error getting conversion data: " + errorMessage);
-                initOneSignal(linkBuilder(), "organic");
+                Log.d(AppsFlyerLibCore.LOG_TAG, "error onInstallConversionFailure : " + errorMessage);
+                if (!isHasDeeplink)
+                    initOneSignal(linkBuilder(), "organic");
             }
 
+
+            /* Called only when a Deep Link is opened */
             @Override
-            public void onAppOpenAttribution(Map<String, String> attributionData) {
-                // Must be overriden to satisfy the AppsFlyerConversionListener interface.
-                // Business logic goes here when UDL is not implemented.
+            public void onAppOpenAttribution(Map<String, String> conversionData) {
+                String attributionDataText = "Attribution Data: \n";
+                for (String attrName : conversionData.keySet()) {
+                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " +
+                            conversionData.get(attrName));
+                    attributionDataText += conversionData.get(attrName) + "\n";
+                }
+                //setAttributionText(attributionDataText);
             }
 
             @Override
             public void onAttributionFailure(String errorMessage) {
-                // Must be overriden to satisfy the AppsFlyerConversionListener interface.
-                // Business logic goes here when UDL is not implemented.
+                Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
             }
-
-        };
+        });
     }
+
     //==============================================================================================
-    private String linkBuilder(){
+    private String linkBuilder() {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority("icelucky.xyz")
@@ -219,7 +271,7 @@ public class LoaderActivity extends AppCompatActivity {
         return builder.build().toString();
     }
 
-    private String linkBuilder(final String deep){
+    private String linkBuilder(final String deep) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority("icelucky.xyz")
@@ -240,7 +292,7 @@ public class LoaderActivity extends AppCompatActivity {
         return builder.build().toString();
     }
 
-    private String linkBuilder(Map<String, Object> conversionDataMap){
+    private String linkBuilder(Map<String, Object> conversionDataMap) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme("https")
                 .authority("icelucky.xyz")
@@ -260,8 +312,9 @@ public class LoaderActivity extends AppCompatActivity {
                 .appendQueryParameter(getResources().getString(R.string.af_siteid_key), Objects.requireNonNull(conversionDataMap.get("af_siteid")).toString());
         return builder.build().toString();
     }
+
     //==============================================================================================
-    private void webView(String link){
+    private void webView(String link) {
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra("builtLink", link);
         startActivity(intent);
