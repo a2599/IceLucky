@@ -13,7 +13,7 @@ import androidx.work.WorkManager;
 
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
-import com.appsflyer.AppsFlyerLibCore;
+//import com.appsflyer.AppsFlyerLibCore;
 
 import com.facebook.FacebookSdk;
 import com.facebook.applinks.AppLinkData;
@@ -38,6 +38,10 @@ public class LoaderActivity extends AppCompatActivity {
 
     private boolean isHasDeeplink = false;
     private boolean isHasCampaign = false;
+    private boolean isAppsFlyerStarting = false;
+
+
+    private static final String AF_DEV_KEY = "dVk5VvxWsn6KZVtGCXMFu8";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +51,13 @@ public class LoaderActivity extends AppCompatActivity {
         //runWebView();
         initFacebook();
 
-        initAppsFlyer();
-
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                initAppsFlyer();
+            }
+        }, 5000);
+        
         runWeb(20000);
     }
 
@@ -153,6 +162,8 @@ public class LoaderActivity extends AppCompatActivity {
         //==========================================================================================
         FacebookSdk.sdkInitialize(this);
         FacebookSdk.fullyInitialize();
+        //FacebookSdk.setAutoInitEnabled(true);
+        //FacebookSdk.fullyInitialize();
 
         AppLinkData.fetchDeferredAppLinkData(this,
                 new AppLinkData.CompletionHandler() {
@@ -172,9 +183,6 @@ public class LoaderActivity extends AppCompatActivity {
                 }
         );
 
-
-        FacebookSdk.setAutoInitEnabled(true);
-        FacebookSdk.fullyInitialize();
         AppLinkData.fetchDeferredAppLinkData(this,
                 new AppLinkData.CompletionHandler() {
                     @Override
@@ -197,57 +205,71 @@ public class LoaderActivity extends AppCompatActivity {
 
     //==============================================================================================
     private void initAppsFlyer() {
+        if (!isAppsFlyerStarting) {
 
-        AppsFlyerLib.getInstance().sendDeepLinkData(this);
+
+            //AFApplication application = new AFApplication();
+            //application.onCreate();
+            //AppsFlyerLib.getInstance().sendDeepLink(this);
 
 
-        AppsFlyerLib.getInstance().registerConversionListener(this, new AppsFlyerConversionListener() {
+            //AppsFlyerLib.getInstance().registerConversionListener(this, new AppsFlyerConversionListener() {
+            AppsFlyerConversionListener conversionListener = new AppsFlyerConversionListener() {
 
-            /* Returns the attribution data. Note - the same conversion data is returned every time per install */
-            @Override
-            public void onConversionDataSuccess(Map<String, Object> conversionData) {
-                for (String attrName : conversionData.keySet()) {
-                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                /* Returns the attribution data. Note - the same conversion data is returned every time per install */
+                @Override
+                public void onConversionDataSuccess(Map<String, Object> conversionData) {
+                    for (String attrName : conversionData.keySet()) {
+                        //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                    }
+                    isHasCampaign = true;
+                    //System.out.println("############################################ ############################################ ############################################ 3");
+                    //for (String attrName : conversionDataMap.keySet())
+                    //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
+                    String status = Objects.requireNonNull(conversionData.get("af_status")).toString();
+
+                    if (!isHasDeeplink) {
+                        if (status.equals("Organic"))
+                            initOneSignal(linkBuilder(), "organic");
+                        else
+                            initOneSignal(linkBuilder(conversionData), Objects.requireNonNull(conversionData.get("campaign")).toString().substring(Objects.requireNonNull(conversionData.get("campaign")).toString().indexOf("_")));
+                    }
                 }
-                isHasCampaign = true;
-                //System.out.println("############################################ ############################################ ############################################ 3");
-                //for (String attrName : conversionDataMap.keySet())
-                //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
-                String status = Objects.requireNonNull(conversionData.get("af_status")).toString();
 
-                if (!isHasDeeplink) {
-                    if (status.equals("Organic"))
+                @Override
+                public void onConversionDataFail(String errorMessage) {
+                    //Log.d(AppsFlyerLibCore.LOG_TAG, "error onInstallConversionFailure : " + errorMessage);
+                    if (!isHasDeeplink)
                         initOneSignal(linkBuilder(), "organic");
-                    else
-                        initOneSignal(linkBuilder(conversionData), Objects.requireNonNull(conversionData.get("campaign")).toString().substring(Objects.requireNonNull(conversionData.get("campaign")).toString().indexOf("_")));
                 }
-            }
-
-            @Override
-            public void onConversionDataFail(String errorMessage) {
-                Log.d(AppsFlyerLibCore.LOG_TAG, "error onInstallConversionFailure : " + errorMessage);
-                if (!isHasDeeplink)
-                    initOneSignal(linkBuilder(), "organic");
-            }
 
 
-            /* Called only when a Deep Link is opened */
-            @Override
-            public void onAppOpenAttribution(Map<String, String> conversionData) {
-                String attributionDataText = "Attribution Data: \n";
-                for (String attrName : conversionData.keySet()) {
-                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " +
-                            conversionData.get(attrName));
-                    attributionDataText += conversionData.get(attrName) + "\n";
+                /* Called only when a Deep Link is opened */
+                @Override
+                public void onAppOpenAttribution(Map<String, String> conversionData) {
+                    StringBuilder attributionDataText = new StringBuilder("Attribution Data: \n");
+                    for (String attrName : conversionData.keySet()) {
+                        //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " +conversionData.get(attrName));
+                        attributionDataText.append(conversionData.get(attrName)).append("\n");
+                    }
+                    //setAttributionText(attributionDataText);
                 }
-                //setAttributionText(attributionDataText);
-            }
 
-            @Override
-            public void onAttributionFailure(String errorMessage) {
-                Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
-            }
-        });
+                @Override
+                public void onAttributionFailure(String errorMessage) {
+                    //Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
+                }
+            };
+
+            AppsFlyerLib.getInstance().init(AF_DEV_KEY, conversionListener, getApplicationContext());
+            AppsFlyerLib.getInstance().start(this);
+
+
+            /* Set to true to see the debug logs. Comment out or set to false to stop the function */
+
+            AppsFlyerLib.getInstance().setDebugLog(true);
+            isAppsFlyerStarting = true;
+        }
     }
 
     //==============================================================================================

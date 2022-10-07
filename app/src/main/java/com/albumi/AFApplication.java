@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
-import com.appsflyer.AppsFlyerLibCore;
+
 
 import java.util.Map;
 
@@ -27,27 +27,27 @@ public class AFApplication extends Application {
             @Override
             public void onConversionDataSuccess(Map<String, Object> conversionData) {
                 for (String attrName : conversionData.keySet()) {
-                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                    //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
                 }
                 //setInstallData(conversionData);
             }
 
             @Override
             public void onConversionDataFail(String errorMessage) {
-                Log.d(AppsFlyerLibCore.LOG_TAG, "error getting conversion data: " + errorMessage);
+                //Log.d(AppsFlyerLibCore.LOG_TAG, "error getting conversion data: " + errorMessage);
             }
 
             /* Called only when a Deep Link is opened */
             @Override
             public void onAppOpenAttribution(Map<String, String> conversionData) {
                 for (String attrName : conversionData.keySet()) {
-                    Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                    //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
                 }
             }
 
             @Override
             public void onAttributionFailure(String errorMessage) {
-                Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
+                //Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
             }
         };
 
@@ -55,7 +55,7 @@ public class AFApplication extends Application {
         /* This API enables AppsFlyer to detect installations, sessions, and updates. */
 
         AppsFlyerLib.getInstance().init(AF_DEV_KEY , conversionListener , getApplicationContext());
-        AppsFlyerLib.getInstance().startTracking(this);
+        AppsFlyerLib.getInstance().start(this);
 
 
         /* Set to true to see the debug logs. Comment out or set to false to stop the function */
