@@ -57,7 +57,7 @@ public class LoaderActivity extends AppCompatActivity {
                 initAppsFlyer();
             }
         }, 5000);
-        
+
         runWeb(20000);
     }
 
@@ -160,47 +160,57 @@ public class LoaderActivity extends AppCompatActivity {
     //==============================================================================================
     private void initFacebook() {
         //==========================================================================================
-        FacebookSdk.sdkInitialize(this);
+        Handler handler = new Handler();
+        FacebookSdk.InitializeCallback initializeCallback = new FacebookSdk.InitializeCallback() {
+            @Override
+            public void onInitialized() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        AppLinkData.fetchDeferredAppLinkData(getApplicationContext(),
+                                new AppLinkData.CompletionHandler() {
+                                    @Override
+                                    public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+                                        if (appLinkData != null) {
+                                            isHasDeeplink = true;
+                                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
+                                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
+                                        } else {
+                                            isHasDeeplink = false;
+                                            initAppsFlyer();
+                                        }
+
+                                    }
+                                }
+                        );
+
+                        AppLinkData.fetchDeferredAppLinkData(getApplicationContext(),
+                                new AppLinkData.CompletionHandler() {
+                                    @Override
+                                    public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+
+                                        if (appLinkData != null) {
+                                            isHasDeeplink = true;
+                                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
+                                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
+                                        } else {
+                                            isHasDeeplink = false;
+                                            initAppsFlyer();
+                                        }
+                                    }
+                                }
+                        );
+                    }
+                });
+            }
+        };
+
+        FacebookSdk.sdkInitialize(this, initializeCallback);
         FacebookSdk.fullyInitialize();
         //FacebookSdk.setAutoInitEnabled(true);
         //FacebookSdk.fullyInitialize();
-
-        AppLinkData.fetchDeferredAppLinkData(this,
-                new AppLinkData.CompletionHandler() {
-                    @Override
-                    public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-                        if (appLinkData != null) {
-                            isHasDeeplink = true;
-                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
-                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
-                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
-                        } else {
-                            isHasDeeplink = false;
-                            initAppsFlyer();
-                        }
-
-                    }
-                }
-        );
-
-        AppLinkData.fetchDeferredAppLinkData(this,
-                new AppLinkData.CompletionHandler() {
-                    @Override
-                    public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-
-                        if (appLinkData != null) {
-                            isHasDeeplink = true;
-                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
-                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
-                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
-                        } else {
-                            isHasDeeplink = false;
-                            initAppsFlyer();
-                        }
-                    }
-                }
-        );
-
     }
 
     //==============================================================================================
