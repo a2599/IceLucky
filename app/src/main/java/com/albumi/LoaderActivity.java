@@ -61,14 +61,11 @@ public class LoaderActivity extends AppCompatActivity {
         runWeb(20000);
     }
 
-
-    /*
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
     }
-    */
     //==============================================================================================
     private void runWeb(int delay) {
 
