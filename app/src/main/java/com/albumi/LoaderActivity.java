@@ -273,12 +273,12 @@ public class LoaderActivity extends AppCompatActivity {
 
             AppsFlyerLib.getInstance().init(AF_DEV_KEY, conversionListener, getApplicationContext());
             AppsFlyerLib.getInstance().start(this);
-
+            //AppsFlyerLib.getInstance().start(this, AF_DEV_KEY, conversionListener);
 
             /* Set to true to see the debug logs. Comment out or set to false to stop the function */
 
             AppsFlyerLib.getInstance().setDebugLog(true);
-            isAppsFlyerStarting = true;
+            //isAppsFlyerStarting = true;
         }
     }
 
