@@ -27,7 +27,7 @@ import java.util.Objects;
 
 
 public class LoaderActivity extends AppCompatActivity {
-    // КОД ДЛЯ БЛЯДСКИХ ТЕСТОВ
+    // КОД ДЛЯ ТЕСТОВ
     // Диплинк
     // adb shell am start -W -a android.intent.action.VIEW "myapp://test1/test2/test3/test4/test5"
     // adb shell am start -W -a android.intent.action.VIEW "myapp://test1/test2/test3/test4/test5" com.albumi
