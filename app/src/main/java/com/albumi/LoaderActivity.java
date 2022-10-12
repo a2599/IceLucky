@@ -42,6 +42,7 @@ public class LoaderActivity extends AppCompatActivity {
 
 
     private static final String AF_DEV_KEY = "dVk5VvxWsn6KZVtGCXMFu8";
+    private static final String ONESIGNAL_APP_ID = "31233279-e064-47e3-b413-5e75394a774f";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +108,7 @@ public class LoaderActivity extends AppCompatActivity {
     //==============================================================================================
     //==============================================================================================
     //==============================================================================================
-    private String ONESIGNAL_APP_ID = "31233279-e064-47e3-b413-5e75394a774f";
+
 
     private void initOneSignal(final String link, final String tag) {
         Thread thread = new Thread(new Runnable() {
