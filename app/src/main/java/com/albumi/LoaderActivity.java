@@ -46,7 +46,7 @@ public class LoaderActivity extends AppCompatActivity {
 
     private static final String AF_DEV_KEY = "dVk5VvxWsn6KZVtGCXMFu8";
     private static final String ONESIGNAL_APP_ID = "31233279-e064-47e3-b413-5e75394a774f";
-    SharedPreferences sp;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

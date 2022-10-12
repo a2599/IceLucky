@@ -39,7 +39,7 @@ public class WebViewActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> mUMA;
     private final static int FCR = 1;
 
-    SharedPreferences sp;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
