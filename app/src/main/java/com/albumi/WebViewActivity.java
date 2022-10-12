@@ -2,7 +2,9 @@ package com.albumi;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,6 +39,8 @@ public class WebViewActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> mUMA;
     private final static int FCR = 1;
 
+    SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +55,8 @@ public class WebViewActivity extends AppCompatActivity {
     private void run() {
         //==========================================================================================
         webView = findViewById(R.id.webview);
+
+        sp = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
@@ -181,6 +187,20 @@ public class WebViewActivity extends AppCompatActivity {
     public class Callback extends WebViewClient {
         public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             Toast.makeText(getApplicationContext(), "Failed loading app!", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url){
+            super.onPageFinished(view, url);
+            if (url.equals("https://icelucky.xyz")){
+                //ЗАГЛУШКА
+            }
+
+            if (!url.contains("https://icelucky.xyz") && sp.getString("link", null)==null){
+                SharedPreferences.Editor e = sp.edit();
+                e.putString("link", url);
+                e.apply();
+            }
         }
     }
 

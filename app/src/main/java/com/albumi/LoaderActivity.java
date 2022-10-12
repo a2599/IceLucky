@@ -1,20 +1,20 @@
 package com.albumi;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.icu.util.TimeZone;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
-//import com.appsflyer.AppsFlyerLibCore;
-
 import com.facebook.FacebookSdk;
 import com.facebook.applinks.AppLinkData;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -22,8 +22,11 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.onesignal.OneSignal;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 public class LoaderActivity extends AppCompatActivity {
@@ -36,30 +39,39 @@ public class LoaderActivity extends AppCompatActivity {
     // Аппс флаер
     // adb shell am start -W -a android.intent.action.VIEW "https://app.appsflyer.com/com.albumi?pid=devtest&advertising_id=43eba73f-2fd7-41c4-8948-c2fa730cc6f1"
 
-    private boolean isHasDeeplink = false;
-    private boolean isHasCampaign = false;
-    private boolean isAppsFlyerStarting = false;
+    //private boolean isHasDeeplink = false;
+    //private boolean isHasCampaign = false;
+    //private boolean isAppsFlyerStarting = false;
 
 
     private static final String AF_DEV_KEY = "dVk5VvxWsn6KZVtGCXMFu8";
     private static final String ONESIGNAL_APP_ID = "31233279-e064-47e3-b413-5e75394a774f";
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loader);
 
+        sp = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
+        if (sp.getString("link", null) !=null)
+            webView(sp.getString("link", null));
+        else
+            initFacebook();
         //runWebView();
-        initFacebook();
+        //initFacebook();
+        //initAppsFlyer();
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                initAppsFlyer();
-            }
-        }, 5000);
+        //Handler handler = new Handler();
+        //handler.postDelayed(new Runnable() {
+        //    public void run() {
+        //        initAppsFlyer();
+        //    }
+        //}, 5000);
 
-        runWeb(20000);
+        //runWeb(20000);
+        //==========================================================================================
+
     }
 
     @Override
@@ -67,9 +79,11 @@ public class LoaderActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
     }
+
     //==============================================================================================
     private void runWeb(int delay) {
 
+        /*
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             public void run() {
@@ -84,8 +98,10 @@ public class LoaderActivity extends AppCompatActivity {
                     runWeb(5000);
             }
         }, delay);
+         */
 
     }
+
     //==============================================================================================
     private void runWebView() {
         Thread thread = new Thread(new Runnable() {
@@ -169,16 +185,23 @@ public class LoaderActivity extends AppCompatActivity {
                                 new AppLinkData.CompletionHandler() {
                                     @Override
                                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+
                                         if (appLinkData != null) {
-                                            isHasDeeplink = true;
-                                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
+                                            //isHasDeeplink = true;
+                                            String deeplinkTag = Objects.requireNonNull(appLinkData.getTargetUri()).toString().replace("myapp://", "");
                                             deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
                                             initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
                                         } else {
-                                            isHasDeeplink = false;
+                                            //isHasDeeplink = false;
                                             initAppsFlyer();
                                         }
-
+                                        /*
+                                        //========================================================== ТЕСТ
+                                        String deeplinkTag = "myapp://test1/test2/test3/test4/".replace("myapp://", "");
+                                        deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                                        initOneSignal(linkBuilder("myapp://test1/test2/test3/test4/"), deeplinkTag);
+                                        //==========================================================
+                                        */
                                     }
                                 }
                         );
@@ -195,71 +218,92 @@ public class LoaderActivity extends AppCompatActivity {
 
     //==============================================================================================
     private void initAppsFlyer() {
-        if (!isAppsFlyerStarting) {
+        //if (!isAppsFlyerStarting) {
 
 
-            //AFApplication application = new AFApplication();
-            //application.onCreate();
-            //AppsFlyerLib.getInstance().sendDeepLink(this);
+        //AFApplication application = new AFApplication();
+        //application.onCreate();
+        //AppsFlyerLib.getInstance().sendDeepLink(this);
 
 
-            //AppsFlyerLib.getInstance().registerConversionListener(this, new AppsFlyerConversionListener() {
-            AppsFlyerConversionListener conversionListener = new AppsFlyerConversionListener() {
+        //AppsFlyerLib.getInstance().registerConversionListener(this, new AppsFlyerConversionListener() {
+        AppsFlyerConversionListener conversionListener = new AppsFlyerConversionListener() {
 
-                /* Returns the attribution data. Note - the same conversion data is returned every time per install */
-                @Override
-                public void onConversionDataSuccess(Map<String, Object> conversionData) {
-                    for (String attrName : conversionData.keySet()) {
-                        //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
-                    }
-                    isHasCampaign = true;
-                    //System.out.println("############################################ ############################################ ############################################ 3");
-                    //for (String attrName : conversionDataMap.keySet())
-                    //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
+            /* Returns the attribution data. Note - the same conversion data is returned every time per install */
+            @Override
+            public void onConversionDataSuccess(Map<String, Object> conversionData) {
+                //for (String attrName : conversionData.keySet()) {
+                //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " + conversionData.get(attrName));
+                //}
+                //isHasCampaign = true;
+
+                //for (String attrName : conversionDataMap.keySet())
+                //System.out.println("### Conversion attribute: " + attrName + " = " + conversionDataMap.get(attrName));
+                //==================================================================================
+
+                if (conversionData != null) {
                     String status = Objects.requireNonNull(conversionData.get("af_status")).toString();
 
-                    if (!isHasDeeplink) {
-                        if (status.equals("Organic"))
-                            initOneSignal(linkBuilder(), "organic");
-                        else
-                            initOneSignal(linkBuilder(conversionData), Objects.requireNonNull(conversionData.get("campaign")).toString().substring(Objects.requireNonNull(conversionData.get("campaign")).toString().indexOf("_")));
-                    }
-                }
-
-                @Override
-                public void onConversionDataFail(String errorMessage) {
-                    //Log.d(AppsFlyerLibCore.LOG_TAG, "error onInstallConversionFailure : " + errorMessage);
-                    if (!isHasDeeplink)
+                    if (status.equals("Organic"))
                         initOneSignal(linkBuilder(), "organic");
+                    else
+                        initOneSignal(linkBuilder(conversionData), Objects.requireNonNull(conversionData.get("campaign")).toString().substring(Objects.requireNonNull(conversionData.get("campaign")).toString().indexOf("_")));
+                } else
+                    initOneSignal(linkBuilder(), "organic");
+
+                //================================================================================== ТЕСТ
+                /*
+                Map<String, Object> mockData = new HashMap<>();
+
+                mockData.put("media_source", "utest1");
+                //data.put("","");
+                mockData.put("adset_id", "utest2");
+                mockData.put("campaign_id", "utest3");
+                mockData.put("campaign", "test1_test2_test3_test4");
+                mockData.put("adset", "utest4");
+                mockData.put("adgroup", "utest5");
+                mockData.put("orig_cost", "utest6");
+                mockData.put("af_siteid", "utest7");
+
+                initOneSignal(linkBuilder(mockData), Objects.requireNonNull(mockData.get("campaign")).toString().substring(Objects.requireNonNull(mockData.get("campaign")).toString().indexOf("_")));
+                 */
+                //==================================================================================
+            }
+
+            @Override
+            public void onConversionDataFail(String errorMessage) {
+                //Log.d(AppsFlyerLibCore.LOG_TAG, "error onInstallConversionFailure : " + errorMessage);
+                //if (!isHasDeeplink)
+                initOneSignal(linkBuilder(), "organic");
+            }
+
+
+            /* Called only when a Deep Link is opened */
+            @Override
+            public void onAppOpenAttribution(Map<String, String> conversionData) {
+                StringBuilder attributionDataText = new StringBuilder("Attribution Data: \n");
+                for (String attrName : conversionData.keySet()) {
+                    //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " +conversionData.get(attrName));
+                    attributionDataText.append(conversionData.get(attrName)).append("\n");
                 }
+                //setAttributionText(attributionDataText);
+            }
 
+            @Override
+            public void onAttributionFailure(String errorMessage) {
+                //Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
+            }
+        };
 
-                /* Called only when a Deep Link is opened */
-                @Override
-                public void onAppOpenAttribution(Map<String, String> conversionData) {
-                    StringBuilder attributionDataText = new StringBuilder("Attribution Data: \n");
-                    for (String attrName : conversionData.keySet()) {
-                        //Log.d(AppsFlyerLibCore.LOG_TAG, "attribute: " + attrName + " = " +conversionData.get(attrName));
-                        attributionDataText.append(conversionData.get(attrName)).append("\n");
-                    }
-                    //setAttributionText(attributionDataText);
-                }
+        AppsFlyerLib.getInstance().init(AF_DEV_KEY, conversionListener, getApplicationContext());
+        AppsFlyerLib.getInstance().start(this);
+        //AppsFlyerLib.getInstance().start(this, AF_DEV_KEY, conversionListener);
 
-                @Override
-                public void onAttributionFailure(String errorMessage) {
-                    //Log.d(AppsFlyerLibCore.LOG_TAG, "error onAttributionFailure : " + errorMessage);
-                }
-            };
+        /* Set to true to see the debug logs. Comment out or set to false to stop the function */
 
-            AppsFlyerLib.getInstance().init(AF_DEV_KEY, conversionListener, getApplicationContext());
-            AppsFlyerLib.getInstance().start(this);
-            //AppsFlyerLib.getInstance().start(this, AF_DEV_KEY, conversionListener);
-
-            /* Set to true to see the debug logs. Comment out or set to false to stop the function */
-
-            AppsFlyerLib.getInstance().setDebugLog(true);
-            //isAppsFlyerStarting = true;
-        }
+        AppsFlyerLib.getInstance().setDebugLog(true);
+        //isAppsFlyerStarting = true;
+        //}
     }
 
     //==============================================================================================
