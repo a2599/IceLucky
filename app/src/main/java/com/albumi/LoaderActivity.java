@@ -181,24 +181,6 @@ public class LoaderActivity extends AppCompatActivity {
                                     }
                                 }
                         );
-
-                        AppLinkData.fetchDeferredAppLinkData(getApplicationContext(),
-                                new AppLinkData.CompletionHandler() {
-                                    @Override
-                                    public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-
-                                        if (appLinkData != null) {
-                                            isHasDeeplink = true;
-                                            String deeplinkTag = appLinkData.toString().replace("myapp://", "");
-                                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
-                                            initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
-                                        } else {
-                                            isHasDeeplink = false;
-                                            initAppsFlyer();
-                                        }
-                                    }
-                                }
-                        );
                     }
                 });
             }
