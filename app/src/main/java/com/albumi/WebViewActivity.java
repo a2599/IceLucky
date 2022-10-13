@@ -82,7 +82,8 @@ public class WebViewActivity extends AppCompatActivity {
                     e.putString("link", url);
                     e.apply();
                 }
-                 */
+                */
+
                 if (Objects.equals(url, "https://icelucky.xyz"))
                     url = link;//ЗАГЛУШКА
 
@@ -202,6 +203,7 @@ public class WebViewActivity extends AppCompatActivity {
         }
 
         /*
+        //=== ЕСТЬ В WEBCLIENT
         @Override
         public void onPageFinished(WebView view, String url){
             super.onPageFinished(view, url);

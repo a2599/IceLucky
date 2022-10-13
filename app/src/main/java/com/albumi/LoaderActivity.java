@@ -199,18 +199,16 @@ public class LoaderActivity extends AppCompatActivity {
                                             initAppsFlyer();
                                         }
 
-
                                         /*
                                         //========================================================== ТЕСТ
                                         String deeplinkTag = "myapp://test1/test2/test3/test4/".replace("myapp://", "").replaceAll("\\/.*", "");
                                         //deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
 
                                         //deeplinkTag = deeplinkTag.replaceAll("\\/.*", "");
-                                        System.out.println("###################################################################################### "+deeplinkTag);
+                                        //System.out.println("###################################################################################### "+deeplinkTag);
                                         initOneSignal(linkBuilder("myapp://test1/test2/test3/test4/"), deeplinkTag);
                                         //==========================================================
                                         */
-
                                     }
                                 }
                         );
