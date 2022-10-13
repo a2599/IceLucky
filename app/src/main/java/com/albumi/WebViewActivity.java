@@ -2,7 +2,6 @@ package com.albumi;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -77,17 +76,24 @@ public class WebViewActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                /*
                 if (!url.contains("https://icelucky.xyz") && sp.getString("link", null)==null){
                     SharedPreferences.Editor e = sp.edit();
                     e.putString("link", url);
                     e.apply();
                 }
-
+                 */
                 if (Objects.equals(url, "https://icelucky.xyz"))
                     url = link;//ЗАГЛУШКА
 
-                if (firstLink && secondLink == null)
+                if (firstLink && secondLink == null){
                     secondLink = url;
+                    if (sp.getString("link", null)==null){
+                        SharedPreferences.Editor e = sp.edit();
+                        e.putString("link", url);
+                        e.apply();
+                    }
+                }
                 else if (!firstLink)
                     firstLink = true;
 
