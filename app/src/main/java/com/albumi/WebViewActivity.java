@@ -77,6 +77,12 @@ public class WebViewActivity extends AppCompatActivity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                if (!url.contains("https://icelucky.xyz") && sp.getString("link", null)==null){
+                    SharedPreferences.Editor e = sp.edit();
+                    e.putString("link", url);
+                    e.apply();
+                }
+
                 if (Objects.equals(url, "https://icelucky.xyz"))
                     url = link;//ЗАГЛУШКА
 
@@ -189,9 +195,11 @@ public class WebViewActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "Failed loading app!", Toast.LENGTH_SHORT).show();
         }
 
+        /*
         @Override
         public void onPageFinished(WebView view, String url){
             super.onPageFinished(view, url);
+
             if (url.equals("https://icelucky.xyz")){
                 //ЗАГЛУШКА
             }
@@ -202,6 +210,7 @@ public class WebViewActivity extends AppCompatActivity {
                 e.apply();
             }
         }
+        */
     }
 
     // Create an image file

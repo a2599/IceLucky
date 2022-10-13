@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
@@ -22,11 +20,9 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.onesignal.OneSignal;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 
 public class LoaderActivity extends AppCompatActivity {
@@ -53,11 +49,18 @@ public class LoaderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loader);
 
+
         sp = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         if (sp.getString("link", null) !=null)
             webView(sp.getString("link", null));
         else
             initFacebook();
+
+
+        //System.out.println("###################################################################################### "+AppsFlyerLib.getInstance().getAppsFlyerUID(getApplicationContext()));
+
+
+
         //runWebView();
         //initFacebook();
         //initAppsFlyer();
@@ -186,22 +189,28 @@ public class LoaderActivity extends AppCompatActivity {
                                     @Override
                                     public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
 
+
                                         if (appLinkData != null) {
                                             //isHasDeeplink = true;
-                                            String deeplinkTag = Objects.requireNonNull(appLinkData.getTargetUri()).toString().replace("myapp://", "");
-                                            deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                                            String deeplinkTag = Objects.requireNonNull(appLinkData.getTargetUri()).toString().replace("myapp://", "").replaceAll("\\/.*", "");
                                             initOneSignal(linkBuilder(Objects.requireNonNull(appLinkData.getTargetUri()).toString()), deeplinkTag);
                                         } else {
                                             //isHasDeeplink = false;
                                             initAppsFlyer();
                                         }
+
+
                                         /*
                                         //========================================================== ТЕСТ
-                                        String deeplinkTag = "myapp://test1/test2/test3/test4/".replace("myapp://", "");
-                                        deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+                                        String deeplinkTag = "myapp://test1/test2/test3/test4/".replace("myapp://", "").replaceAll("\\/.*", "");
+                                        //deeplinkTag = deeplinkTag.substring(deeplinkTag.indexOf("/"));
+
+                                        //deeplinkTag = deeplinkTag.replaceAll("\\/.*", "");
+                                        System.out.println("###################################################################################### "+deeplinkTag);
                                         initOneSignal(linkBuilder("myapp://test1/test2/test3/test4/"), deeplinkTag);
                                         //==========================================================
                                         */
+
                                     }
                                 }
                         );
@@ -317,7 +326,7 @@ public class LoaderActivity extends AppCompatActivity {
                 .appendQueryParameter(getResources().getString(R.string.gadid_key), googleAdId())
                 .appendQueryParameter(getResources().getString(R.string.deeplink_key), null)
                 .appendQueryParameter(getResources().getString(R.string.source_key), null)
-                .appendQueryParameter(getResources().getString(R.string.af_id_key), null)
+                .appendQueryParameter(getResources().getString(R.string.af_id_key), AppsFlyerLib.getInstance().getAppsFlyerUID(getApplicationContext()))
                 .appendQueryParameter(getResources().getString(R.string.adset_id_key), null)
                 .appendQueryParameter(getResources().getString(R.string.campaign_id_key), null)
                 .appendQueryParameter(getResources().getString(R.string.app_campaign_key), null)
