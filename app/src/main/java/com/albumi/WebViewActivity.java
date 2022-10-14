@@ -85,7 +85,7 @@ public class WebViewActivity extends AppCompatActivity {
                 */
 
                 if (Objects.equals(url, "https://icelucky.xyz"))
-                    url = link;//ЗАГЛУШКА
+                    plug();//ЗАГЛУШКА
 
                 if (firstLink && secondLink == null){
                     secondLink = url;
