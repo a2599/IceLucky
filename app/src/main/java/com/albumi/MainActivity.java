@@ -25,8 +25,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        runSplash();
+        //runSplash();
         //runDebug();
+        plug();
     }
 
     //==============================================================================================
@@ -52,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 //overridePendingTransition(R.anim.up, R.anim.down);
                 finish();
+    }
+    //==============================================================================================
+    private void plug() {
+        Intent intent = new Intent(this, PlugActivity.class);
+        startActivity(intent);
+        finish();
     }
     //==============================================================================================
 }
